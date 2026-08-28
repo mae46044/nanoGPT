@@ -232,3 +232,128 @@ python sample.py \
 ## 謝辞
 
 nanoGPTのすべての実験は、私のお気に入りのクラウドGPUプロバイダーである[Lambda labs](https://lambdalabs.com)のGPUによって支えられています。nanoGPTをスポンサーしてくれたLambda labsに感謝します！
+
+---
+
+maeshiro追記
+ChatGPT からのヒント
+- https://www.youtube.com/watch?v=kCc8FmEb1nY
+- https://nlp.seas.harvard.edu/annotated-transformer/?trk=public_post_comment-text
+
+```
+文字列
+  ↓
+token ID
+  ↓
+Embedding
+  ↓
+┌──────────────────────────┐
+│ Transformer Block        │
+│                          │
+│  LayerNorm               │
+│      ↓                   │
+│  Self Attention          │
+│      ↓                   │
+│  Residual                │
+│      ↓                   │
+│  LayerNorm               │
+│      ↓                   │
+│  MLP / Feed Forward      │
+│      ↓                   │
+│  Residual                │
+└──────────────────────────┘
+  ↓
+同じBlockをN回
+  ↓
+Linear
+  ↓
+各tokenのlogit
+  ↓
+Softmax
+  ↓
+次token
+```
+
+```
+Karpathy mini GPT
+        ↓
+GPT / Decoder-only Transformer
+        ↓
+Annotated Transformer
+        ↓
+Encoder / Decoderの違い
+        ↓
+Llama / Qwen / MiniMax等の実モデル
+
+```
+
+
+```
+Level 1
+token → embedding → Linear → softmax
+
+Level 2
+token → embedding
+          ↓
+       Attention
+          ↓
+       FFN / MLP
+          ↓
+        logits
+
+Level 3
+          Transformer Block
+     ┌─────────────────────┐
+x ──→ Attention ── + x
+          ↓
+        MLP ─────── + x
+     └─────────────────────┘
+             × N
+
+Level 4
+実際のLLM
+  RMSNorm
+  RoPE
+  GQA / MQA
+  SwiGLU
+  KV Cache
+  MoE
+  FlashAttention
+  etc.
+```
+
+
+```
+入力:
+"hello"
+
+↓ tokenizer
+
+[7, 4, 11, 11, 14]
+
+↓ embedding
+
+[5 tokens, 32 dimensions]
+
+↓ Q,K,V
+
+Q = XWq
+K = XWk
+V = XWv
+
+↓ Attention
+
+softmax(QK^T)V
+
+↓ MLP
+
+↓ logits
+
+[5 tokens, vocabulary_size]
+
+↓ 最後の位置
+
+次の文字 = " "
+```
+
+
