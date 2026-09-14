@@ -11,16 +11,18 @@ import torch.nn.functional as F
 
 torch.manual_seed(0)
 
-text = "hello world"
+text = "hello world hello ai world"
 
-chars = sorted(set(text))
+# 単語単位でtokenize
+tokens = text.split()
+vocab = sorted(set(tokens))
 
-stoi = {ch: i for i, ch in enumerate(chars)}
-itos = {i: ch for ch, i in stoi.items()}
+stoi = {token: i for i, token in enumerate(vocab)}
+itos = {i: token for token, i in stoi.items()}
 
 
 def encode(s):
-    return [stoi[c] for c in s]
+    return [stoi[token] for token in s.split()]
 
 
 def decode(ids):
@@ -28,8 +30,8 @@ def decode(ids):
 
 
 print("=== Vocabulary ===")
-print(chars)
-print("vocab_size =", len(chars))
+print(vocab)
+print("vocab_size =", len(vocab))
 print()
 
 
@@ -224,7 +226,7 @@ class TinyGPT(nn.Module):
 # 3. モデル生成
 # ============================================================
 
-vocab_size = len(chars)
+vocab_size = len(vocab)
 d_model = 8
 
 model = TinyGPT(
@@ -241,7 +243,7 @@ print()
 # 4. forward の中身を見る
 # ============================================================
 
-sample = "hello"
+sample = "hello world"
 
 x = torch.tensor(
     encode(sample),
@@ -265,13 +267,13 @@ with torch.no_grad():
 # ============================================================
 # 5. 学習データ
 #
-# hello world
+# hello world hello ai world
 #
 # input:
-# h e l l o   w o r l
+# hello world hello ai
 #
 # target:
-# e l l o   w o r l d
+# world hello ai world
 # ============================================================
 
 data = torch.tensor(
@@ -354,7 +356,7 @@ print()
 # 8. 次 token の確率を見る
 # ============================================================
 
-prompt = "hell"
+prompt = "hello"
 
 prompt_ids = torch.tensor(
     encode(prompt),
@@ -392,7 +394,7 @@ print()
 def generate(
     model,
     prompt,
-    max_new_tokens=20
+    max_new_tokens=10
 ):
 
     ids = encode(prompt)
@@ -430,8 +432,8 @@ print("=== Generation ===")
 
 result = generate(
     model,
-    prompt="h",
-    max_new_tokens=30
+    prompt="hello",
+    max_new_tokens=10
 )
 
 print(result)
